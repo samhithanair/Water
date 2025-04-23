@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>well. – water.</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>well.</h1>
+    <a href="/">← Back to today</a>
+
+    {% if entries %}
+      <div class="entries">
+        {% for entry in entries %}
+            <div class="entry">
+                <h3>{{ entry.date }}</h3>
+                <p><strong>Prompt:</strong> {{ entry.prompt }}</p>
+                <p><strong>Response:</strong><br>{{ entry.response }}</p>
+            </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No past entries yet.</p>
+    {% endif %}
+  </div>
+</body>
+</html>
