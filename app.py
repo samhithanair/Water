@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
+import uuid
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
@@ -9,6 +10,7 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY") or "super-secret-key"  # Required for session
 
 RESPONSES_DIR = "responses"
 PROMPT_FILE = "daily_prompt.json"
