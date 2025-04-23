@@ -43,20 +43,29 @@ def get_today_prompt():
 
     return prompt
 
+def get_user_response_path():
+    user_id = session.get("user_id")
+    user_dir = os.path.join(RESPONSES_DIR, user_id)
+    os.makedirs(user_dir, exist_ok=True)
+    return os.path.join(user_dir, f"{get_today()}.json")
+
 def get_today_response():
-    filename = os.path.join(RESPONSES_DIR, f"{get_today()}.json")
+    filename = get_user_response_path()
     if os.path.exists(filename):
         with open(filename, "r") as f:
             data = json.load(f)
             return data.get("response", "")
 
-
 def save_today_response(text):
-    filename = os.path.join(RESPONSES_DIR, f"{get_today()}.json")
+    filename = get_user_response_path()
     prompt = get_today_prompt()
     with open(filename, "w") as f:
         json.dump({"prompt": prompt, "response": text.strip()}, f, indent=2)
 
+@app.before_request
+def assign_user_id():
+    if "user_id" not in session:
+        session["user_id"] = str(uuid.uuid4())
 
 
 @app.route('/')
@@ -77,21 +86,25 @@ def submit():
 
 @app.route('/history')
 def history():
+    user_id = session.get("user_id")
+    user_dir = os.path.join(RESPONSES_DIR, user_id)
     entries = []
-    for filename in sorted(os.listdir(RESPONSES_DIR)):
-        if filename.endswith(".json"):
-            date_str = filename.replace(".json", "")
-            with open(os.path.join(RESPONSES_DIR, filename), "r") as f:
-                try:
-                    data = json.load(f)
-                    if isinstance(data, dict) and "response" in data:
-                        entries.append({
-                            "date": date_str,
-                            "prompt": data.get("prompt", "[No prompt found]"),
-                            "response": data["response"]
-                        })
-                except Exception:
-                    continue
+
+    if os.path.exists(user_dir):
+        for filename in sorted(os.listdir(user_dir)):
+            if filename.endswith(".json"):
+                date_str = filename.replace(".json", "")
+                with open(os.path.join(user_dir, filename), "r") as f:
+                    try:
+                        data = json.load(f)
+                        if isinstance(data, dict) and "response" in data:
+                            entries.append({
+                                "date": date_str,
+                                "prompt": data.get("prompt", "[No prompt found]"),
+                                "response": data["response"]
+                            })
+                    except Exception:
+                        continue
     entries.reverse()
     return render_template("history.html", entries=entries)
 
