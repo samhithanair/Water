@@ -1,4 +1,3 @@
-my app.py is this
 from flask import Flask, render_template, request, jsonify, session
 import uuid
 import google.generativeai as genai
