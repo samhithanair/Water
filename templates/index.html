@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Muse</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>water.</h1>
+    <p id="prompt">{{ prompt }}</p>
+
+    <textarea id="answer" placeholder="...">{{ response or ''}}</textarea>
+    <button onclick="submitAnswer()">Save</button>
+    
+    <p id="status"></p>
+
+    <a href="/history" class="history-link">well.</a>
+  </div>
+
+  <script>
+    async function submitAnswer() {
+      const answer = document.getElementById("answer").value;
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ answer })
+      });
+
+      const result = await response.json();
+      document.getElementById("status").textContent = result.message;
+    }
+  </script>
+</body>
+</html>
